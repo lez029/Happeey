@@ -1,9 +1,10 @@
-import type { SleepRecord } from "@/types/sleep";
+import type { SleepRecord, StoredSleepRecord } from "@/types/sleep";
 import { getSleepDuration } from "@/utils/sleep";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 
+let testAttempts = 0;
 
 export default function Homescreen() {
     const[isSleeping, setIsSleeping] = useState<boolean>(false);
@@ -12,14 +13,18 @@ export default function Homescreen() {
     const CLICK_WAKE_MSG = "Wake Up clicked!";
     const CLICK_SLEEP_MSG = "Start Sleep clicked!";
     const NULL_START_MSG = "StartTime must not be Null!";
-    const SAVE_FAILURE_MSG = "Fail to save the record!"
+    const SAVE_FAILURE_MSG = 
+      "Fail to save the record. \nPlease check your connection."
     const [sleepRecords, setSleepRecords] = useState<SleepRecord[]>([]);
+    const [pendingRecord, setPendingRecord] = 
+      useState<SleepRecord | null>(null);
+    const READ_HISTORY_FAILURE_MSG = "Reading storage failed!"
 
-    async function saveSleepRecords(records: SleepRecord[]): Promise<void> {
-      const json = JSON.stringify(records);
-      await AsyncStorage.setItem("sleepRecords", json);
-    }
-
+    /**
+     * Starts a sleep session if isSleeping is false.
+     * Otherwise, saves the pending record or creates and saves
+     * a new record using the current time as the end time.
+     */
     async function handlePress(): Promise<void> {
       console.log(isSleeping ? CLICK_WAKE_MSG : CLICK_SLEEP_MSG);
 
@@ -29,34 +34,89 @@ export default function Homescreen() {
         setSleepDuration(null);
         console.log(`Start Time: ${now}`);
         setIsSleeping(prev => !prev);
-      } else{
+      } else {
         const now = new Date();
+        let record: SleepRecord;
         if (startTime != null) {
-          const duration = getSleepDuration(startTime, now);
-          const record = {
-            startTime: startTime, endTime: now, duration: duration
+          if (pendingRecord != null) {
+            record = pendingRecord;
+          } else {
+            const duration = getSleepDuration(startTime, now);
+            record = 
+            {
+              startTime: startTime, endTime: now, duration: duration
+            }
           }
-          try{
-            await saveSleepRecords([...sleepRecords, record]);
-
-            setSleepRecords(prev => [...prev, record]);
-            setStartTime(null);
-            setSleepDuration(duration);
-            
-            console.log(`Sleep Duration: ${duration}`);
-            console.log(`End Time: ${now}`);
-
-            setIsSleeping(prev => !prev);
-          }
-          catch{
-            console.error(SAVE_FAILURE_MSG);
-          }
-
+          saveRecord(record);
         } else {
           throw new RangeError(NULL_START_MSG);
         }
       }
     }
+
+    async function saveSleepRecords(records: SleepRecord[]): Promise<void> {
+      const json = JSON.stringify(records);
+      await AsyncStorage.setItem("sleepRecords", json);
+    }
+
+    async function loadSleepRecords(): Promise<void> {
+      try{
+        const json = await AsyncStorage.getItem("sleepRecords");
+        if (json == null) {
+          return;
+        }
+        const parsed: StoredSleepRecord[] = JSON.parse(json);
+        const records = parsed.map(record => 
+          ({
+            startTime: new Date(record.startTime),
+            endTime: new Date(record.endTime),
+            duration: record.duration
+          })
+        );
+        setSleepRecords(records);
+      } 
+      catch(error){
+        console.error(error);
+        Alert.alert(
+          "Reading Failed",
+          READ_HISTORY_FAILURE_MSG,
+          [{text: "Retry", onPress: loadSleepRecords}]
+        );
+      }
+    }
+
+    async function saveRecord(record: SleepRecord): Promise<void> {
+      testAttempts++;
+      try{
+        // Test the Retry Button
+        if (testAttempts <= 2) {
+          throw new Error("Test Failure!");
+        }
+
+        await saveSleepRecords([...sleepRecords, record]);
+
+        setSleepRecords(prev => [...prev, record]);
+        setStartTime(null);
+        setSleepDuration(record.duration);
+        
+        console.log(`Sleep Duration: ${record.duration}`);
+        console.log(`End Time: ${record.endTime}`);
+
+        setIsSleeping(false);
+        setPendingRecord(null);
+      }
+      catch(error){
+        console.error(error);
+        setPendingRecord(prev => prev == null ? record : prev);
+        Alert.alert(
+          "Save Failed!",
+          SAVE_FAILURE_MSG, 
+          [{text: "Retry", onPress: () => saveRecord(record)}]);
+        return;
+      }
+    }
+
+
 
     return (
       <View style = {{
