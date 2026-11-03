@@ -1,4 +1,6 @@
+import type { SleepRecord } from "@/types/sleep";
 import { getSleepDuration } from "@/utils/sleep";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
@@ -10,30 +12,50 @@ export default function Homescreen() {
     const CLICK_WAKE_MSG = "Wake Up clicked!";
     const CLICK_SLEEP_MSG = "Start Sleep clicked!";
     const NULL_START_MSG = "StartTime must not be Null!";
+    const SAVE_FAILURE_MSG = "Fail to save the record!"
+    const [sleepRecords, setSleepRecords] = useState<SleepRecord[]>([]);
 
-    function handlePress(): void {
+    async function saveSleepRecords(records: SleepRecord[]): Promise<void> {
+      const json = JSON.stringify(records);
+      await AsyncStorage.setItem("sleepRecords", json);
+    }
+
+    async function handlePress(): Promise<void> {
       console.log(isSleeping ? CLICK_WAKE_MSG : CLICK_SLEEP_MSG);
 
       if (!isSleeping) {
         const now = new Date();
         setStartTime(now);
+        setSleepDuration(null);
         console.log(`Start Time: ${now}`);
+        setIsSleeping(prev => !prev);
       } else{
         const now = new Date();
         if (startTime != null) {
           const duration = getSleepDuration(startTime, now);
-          setSleepDuration(duration);
+          const record = {
+            startTime: startTime, endTime: now, duration: duration
+          }
+          try{
+            await saveSleepRecords([...sleepRecords, record]);
 
-          console.log(`Sleep Duration: ${duration}`);
-          console.log(`End Time: ${now}`);
+            setSleepRecords(prev => [...prev, record]);
+            setStartTime(null);
+            setSleepDuration(duration);
+            
+            console.log(`Sleep Duration: ${duration}`);
+            console.log(`End Time: ${now}`);
 
-          setStartTime(null);
+            setIsSleeping(prev => !prev);
+          }
+          catch{
+            console.error(SAVE_FAILURE_MSG);
+          }
+
         } else {
           throw new RangeError(NULL_START_MSG);
         }
       }
-
-      setIsSleeping(prev => !prev);
     }
 
     return (
@@ -44,26 +66,14 @@ export default function Homescreen() {
         backgroundColor : "#13223a" 
       }}>
 
-        {startTime == null &&(
-            <Text style = {{
-                color: "white",
-                fontSize: 32,
-                fontWeight: "bold"
-            }}>
-              Welcome to Happeey
-            </Text>
-        )}
-
-        {startTime != null &&(
-            <Text style = {{
-                color: "white",
-                fontSize: 32,
-                fontWeight: "bold"
-            }}>
-              Recording Sleep
-            </Text>
-        )}
-
+          <Text style = {{
+              color: "white",
+              fontSize: 32,
+              fontWeight: "bold"
+          }}>
+            {startTime == null ? "Welcome to Happeey" : "Recording Sleep..."}
+          </Text>
+            
           <Text style = {{
               color: "white",
               fontSize: 18
@@ -83,6 +93,24 @@ export default function Homescreen() {
               {isSleeping ? "Wake Up" : "Start Sleep"}
             </Text>
           </Pressable>
+
+          <Text style = {{
+              color: "white",
+              fontSize: 18
+          }}>
+            {isSleeping ? "" : sleepDuration}
+          </Text>
+
+          {
+            sleepRecords.map(record => 
+            <Text key = {record.startTime.getTime()} 
+            style = {{
+              color: "white"
+            }}>
+              {record.duration}
+            </Text>
+          )
+          }
       </View>
     );
 }

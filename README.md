@@ -9,9 +9,10 @@ Happeey is an early-stage mobile app for recording sleep sessions. The current i
 - Start a sleep session and record its start time.
 - Switch the home screen between welcome and recording states.
 - End a session with **Wake Up**, calculate its duration, and reset the start time.
-- Store the latest formatted duration in component state and log session details to the console.
+- Display the latest formatted duration and a list of completed sessions from the current screen session.
+- Save completed sleep records to AsyncStorage and log session details to the console.
 - Validate dates and minute values, reject negative durations, and format durations as hours and minutes.
-- Use Expo Router for the Home and starter Explore screens.
+- Use Expo Router for navigation.
 
 ## Tech stack
 
@@ -51,10 +52,11 @@ src/
   app/
     _layout.tsx        # Root layout and tabs
     index.tsx          # Sleep tracking home screen
-    explore.tsx        # Starter Explore screen
   components/         # Shared UI and platform-specific components
   constants/          # Theme values
   hooks/              # Theme and color-scheme hooks
+  types/
+    sleep.ts          # Sleep record type
   utils/
     sleep.ts          # Duration calculation, formatting, and validation
 assets/               # Icons, images, and splash assets
@@ -70,16 +72,16 @@ npx tsc --noEmit
 Current baseline:
 
 - ESLint is not configured yet. Expo's lint command attempts to set it up on its first run.
-- Type checking currently reports a `ref` type mismatch in `src/components/app-tabs.web.tsx`.
+- Type checking currently reports a tab link to the removed `/explore` route and a `ref` type mismatch in `src/components/app-tabs.web.tsx`.
 
 For new Expo dependencies, use `npx expo install <package>` to resolve SDK-compatible versions. Refer to the [Expo SDK 58 documentation](https://docs.expo.dev/versions/v58.0.0/) when working with Expo APIs.
 
 ## Current limitations
 
-- Sleep sessions exist only in component state and are not persisted across app restarts or screen remounts.
-- The latest sleep duration is stored and logged, but is not yet displayed in the UI.
-- Sleep history, statistics, reminders, and account synchronization are not implemented.
-- The Explore screen and parts of the shared UI still come from the Expo starter template.
+- Active sessions exist only in component state and are not restored after app restarts or screen remounts.
+- Completed records are written to AsyncStorage, but loading saved records is not implemented. Saving a new record after a restart or remount overwrites the saved list with the current screen's records.
+- Statistics, reminders, and account synchronization are not implemented.
+- Parts of the shared UI still come from the Expo starter template.
 
 ## License
 
