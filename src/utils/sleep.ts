@@ -1,3 +1,4 @@
+
 const RATIO_HOUR_MIN = 60;
 const RATIO_MIN_SEC = 60;
 const RATIO_SEC_MILLSEC = 1000;
@@ -5,11 +6,14 @@ const INVALID_MIN_MSG = "Minutes must be finite and non-negative!";
 const INVALID_DATE_MSG = "Dates must be valid!";
 const END_EARLIER_MSG = "EndTime is earlier than StartTime!";
 
+
 export function minutesToHour(minutes: number): number{
     minutes = normalizeSleepMinutes(minutes);
 
     return minutes / RATIO_HOUR_MIN;
 }
+
+
 
 export function formatSleepDuration(minutes: number): string{
     minutes = normalizeSleepMinutes(minutes);
@@ -18,6 +22,8 @@ export function formatSleepDuration(minutes: number): string{
     let numMinute = minutes - numHour * RATIO_HOUR_MIN;
     return `${numHour} hour(s) ${numMinute} minute(s)`;
 }
+
+
 
 export function calculateSleepDuration(
     startTime: Date,
@@ -32,6 +38,8 @@ export function calculateSleepDuration(
     );
 }
 
+
+
 export function getSleepDuration(
     startTime: Date,
     endTime: Date
@@ -40,6 +48,8 @@ export function getSleepDuration(
         calculateSleepDuration(startTime, endTime)
     )
 }
+
+
 
 function validateSleepDuration(
     startTime: Date,
@@ -57,11 +67,15 @@ function validateSleepDuration(
     }
 }
 
+
+
 function validateSleepMinutes(minutes: number): void{
     if (!Number.isFinite(minutes) || minutes < 0) {
         throw new RangeError(INVALID_MIN_MSG);
     }
 }
+
+
 
 export function normalizeSleepMinutes(minutes: number): number{
     validateSleepMinutes(minutes);

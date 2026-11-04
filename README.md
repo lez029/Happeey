@@ -9,8 +9,9 @@ Happeey is an early-stage mobile app for recording sleep sessions. The current i
 - Start a sleep session and record its start time.
 - Switch the home screen between welcome and recording states.
 - End a session with **Wake Up**, calculate its duration, and reset the start time.
-- Display the latest formatted duration and a list of completed sessions from the current screen session.
-- Save completed sleep records to AsyncStorage and log session details to the console.
+- Display the latest formatted duration on the home screen.
+- Load saved sleep durations when the History screen mounts, with a retry alert if loading fails.
+- Append completed sleep records to existing AsyncStorage history and log session details to the console.
 - Offer retry alerts for failed saves and retain the pending record's original timestamps.
 - Validate dates and minute values, reject negative durations, and format durations as hours and minutes.
 - Use Expo Router for navigation.
@@ -53,7 +54,7 @@ src/
   app/
     _layout.tsx        # Root layout and tabs
     index.tsx          # Sleep tracking home screen
-    History.tsx        # Empty placeholder for a future history screen
+    History.tsx        # Saved sleep duration history
   components/         # Shared UI and platform-specific components
   constants/          # Theme values
   hooks/              # Theme and color-scheme hooks
@@ -61,6 +62,7 @@ src/
     sleep.ts          # In-memory and stored sleep record types
   utils/
     sleep.ts          # Duration calculation, formatting, and validation
+    sleepStorage.ts   # Load saved records and restore Date values
 assets/               # Icons, images, and splash assets
 ```
 
@@ -81,9 +83,8 @@ For new Expo dependencies, use `npx expo install <package>` to resolve SDK-compa
 ## Current limitations
 
 - Active sessions exist only in component state and are not restored after app restarts or screen remounts.
-- Completed records are written to AsyncStorage. A loading helper converts stored timestamps back to Date values and offers a retry alert, but it is not called by the screen yet. Saving a new record after a restart or remount can overwrite the saved list with the current screen's records.
-- Save-retry testing is enabled: the first two save attempts per module initialization deliberately fail.
-- The History route file is an empty placeholder and does not export a screen yet.
+- History loads once when its screen mounts; refreshing it on each tab visit is not implemented.
+- The simulated save failures used for retry testing are disabled.
 - Statistics, reminders, and account synchronization are not implemented.
 - Parts of the shared UI still come from the Expo starter template.
 
