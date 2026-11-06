@@ -20,7 +20,7 @@ export function formatSleepDuration(minutes: number): string{
 
     let numHour = Math.floor(minutes / RATIO_HOUR_MIN);
     let numMinute = minutes - numHour * RATIO_HOUR_MIN;
-    return `${numHour} hour(s) ${numMinute} minute(s)`;
+    return `${numHour} h ${numMinute} min`;
 }
 
 

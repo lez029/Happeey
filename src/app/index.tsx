@@ -12,7 +12,6 @@ export default function Homescreen() {
     const NULL_START_MSG = "StartTime must not be Null!";
     const SAVE_FAILURE_MSG =
         "Fail to save the record. \nPlease check your connection."
-    const READ_HISTORY_FAILURE_MSG = "Reading storage failed!"
 
     const [isSleeping, setIsSleeping] = useState<boolean>(false);
     const [startTime, setStartTime] = useState<Date | null>(null);
@@ -54,30 +53,7 @@ export default function Homescreen() {
         }
     }
 
-    async function loadSleepRecords(): Promise<void> {
-        try {
-            const json = await AsyncStorage.getItem("sleepRecords");
-            if (json == null) {
-                setSleepRecords([]);
-                return;
-            }
-            const parsed: StoredSleepRecord[] = JSON.parse(json);
-            const records = parsed.map(record => ({
-                startTime: new Date(record.startTime),
-                endTime: new Date(record.endTime),
-                duration: record.duration
-            }));
-            setSleepRecords(records);
-        }
-        catch (error) {
-            console.error(error);
-            Alert.alert(
-                "Reading Failed",
-                READ_HISTORY_FAILURE_MSG,
-                [{ text: "Retry", onPress: loadSleepRecords }]
-            );
-        }
-    }
+
 
     /**
      * Save the sleep record to json and clear all variables

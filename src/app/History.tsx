@@ -30,17 +30,41 @@ export default function HistoryScreen() {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "#13223a"
+            backgroundColor: "#13223a",
         }}>
-            <Text>History</Text>
+            <Text style = {{
+                fontSize: 18,
+                color: "white",
+                padding: 10
+            }}>History</Text>
             {
                 sleepRecords.map(record =>
-                    <Text key={record.startTime.getTime()}
-                        style={{
-                            color: "white"
-                        }}>
-                        {record.duration}
-                    </Text>
+                    <View style = {{
+                        flexDirection: "row",
+                        width: "85%"
+                    }}>
+                        <Text key={record.startTime.getTime()}
+                            style={{
+                                color: "white",
+                                flex: 1
+                            }}>
+                            {record.startTime.toLocaleTimeString()}
+                        </Text>
+                        <Text key={record.startTime.getTime()}
+                            style={{
+                                color: "white",
+                                flex: 1
+                            }}>
+                            {record.endTime.toLocaleTimeString()}
+                        </Text>
+                        <Text key={record.startTime.getTime()}
+                            style={{
+                                color: "white",
+                                flex: 1
+                            }}>
+                            {record.duration}
+                        </Text>
+                    </View>
                 )
             }
         </View>

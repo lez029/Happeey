@@ -10,10 +10,10 @@ Happeey is an early-stage mobile app for recording sleep sessions. The current i
 - Switch the home screen between welcome and recording states.
 - End a session with **Wake Up**, calculate its duration, and reset the start time.
 - Display the latest formatted duration on the home screen.
-- Load saved sleep durations when the History screen mounts, with a retry alert if loading fails.
+- Load saved sessions when the History screen mounts and display each session's local start time, end time, and duration, with a retry alert if loading fails.
 - Append completed sleep records to existing AsyncStorage history and log session details to the console.
 - Offer retry alerts for failed saves and retain the pending record's original timestamps.
-- Validate dates and minute values, reject negative durations, and format durations as hours and minutes.
+- Validate dates and minute values, reject negative durations, and format durations with compact labels such as `8 h 30 min`.
 - Use Expo Router for navigation.
 
 ## Tech stack
@@ -54,7 +54,7 @@ src/
   app/
     _layout.tsx        # Root layout and tabs
     index.tsx          # Sleep tracking home screen
-    History.tsx        # Saved sleep duration history
+    History.tsx        # Saved session times and durations
   components/         # Shared UI and platform-specific components
   constants/          # Theme values
   hooks/              # Theme and color-scheme hooks
