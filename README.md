@@ -12,6 +12,7 @@ Happeey is an early-stage mobile app for recording sleep sessions. The current i
 - Display the latest formatted duration on the home screen.
 - Load saved sessions when the History screen mounts and display each session's local start time, end time, and duration, with a retry alert if loading fails.
 - Append completed sleep records to existing AsyncStorage history and log session details to the console.
+- Remove saved records and clear the displayed history with **Clean History**, with a retry alert if deletion fails.
 - Offer retry alerts for failed saves and retain the pending record's original timestamps.
 - Validate dates and minute values, reject negative durations, and format durations with compact labels such as `8 h 30 min`.
 - Use Expo Router for navigation.

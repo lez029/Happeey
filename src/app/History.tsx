@@ -1,10 +1,13 @@
 import type { SleepRecord } from "@/types/sleep";
 import { loadSleepRecords } from "@/utils/sleepStorage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
-import { Alert, Text, View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 
 export default function HistoryScreen() {
     const READ_HISTORY_FAILURE_MSG = "Reading storage failed!"
+    const CLEAR_HISTORY_MSG = "History is cleaned!"
+    const FAIL_CLEAR_MSG = "Fail to clean history!"
 
     const [sleepRecords, setSleepRecords] = useState<SleepRecord[]>([]);
     useEffect(() => {
@@ -15,7 +18,7 @@ export default function HistoryScreen() {
             }
             catch(error) {
                 Alert.alert(
-                    "Reading Failed",
+                    READ_HISTORY_FAILURE_MSG,
                     //READ_HISTORY_FAILURE_MSG,
                     String(error),
                     [{ text: "Retry", onPress: loadHistory }]
@@ -24,6 +27,22 @@ export default function HistoryScreen() {
         }
         void loadHistory();
     }, []);
+
+    async function clearHistory(): Promise<void> {
+        try {
+            await AsyncStorage.removeItem("sleepRecords");
+            setSleepRecords([]);
+            console.log(CLEAR_HISTORY_MSG);
+        }
+        catch(error) {
+            Alert.alert(
+                "Retry",
+                FAIL_CLEAR_MSG,
+                [{ text: "Retry", onPress: clearHistory }]
+            )
+        }
+
+    }
 
     return (
         <View style={{
@@ -67,6 +86,18 @@ export default function HistoryScreen() {
                     </View>
                 )
             }
+            <Pressable onPress={clearHistory}> 
+                <Text style={{
+                    color: "white",
+                    fontSize: 18,
+                    backgroundColor: "orange",
+                    margin: 15,
+                    padding: 10,
+                    borderRadius: 10,
+                }}>
+                    Clean History
+                </Text>
+            </Pressable>
         </View>
     );
 }
