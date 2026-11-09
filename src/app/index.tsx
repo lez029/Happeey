@@ -11,7 +11,8 @@ export default function Homescreen() {
     const CLICK_SLEEP_MSG = "Start Sleep clicked!";
     const NULL_START_MSG = "StartTime must not be Null!";
     const SAVE_FAILURE_MSG =
-        "Fail to save the record. \nPlease check your connection."
+        "Fail to save the record. \nPlease check your connection.";
+    const TOO_SHORT_DURATION = "0 h 0 min";
 
     const [isSleeping, setIsSleeping] = useState<boolean>(false);
     const [startTime, setStartTime] = useState<Date | null>(null);
@@ -42,6 +43,11 @@ export default function Homescreen() {
                     record = pendingRecord;
                 } else {
                     const duration = getSleepDuration(startTime, now);
+                    if (duration == TOO_SHORT_DURATION) {
+                        setIsSleeping(false);
+                        setPendingRecord(null);
+                        return;
+                    }
                     record = {
                         startTime: startTime, endTime: now, duration: duration
                     }
@@ -92,6 +98,8 @@ export default function Homescreen() {
             return;
         }
     }
+
+
 
     async function saveSleepRecords(record: SleepRecord): Promise<void> {
         const json = await AsyncStorage.getItem("sleepRecords");

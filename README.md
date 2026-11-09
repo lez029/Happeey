@@ -10,7 +10,9 @@ Happeey is an early-stage mobile app for recording sleep sessions. The current i
 - Switch the home screen between welcome and recording states.
 - End a session with **Wake Up**, calculate its duration, and reset the start time.
 - Display the latest formatted duration on the home screen.
-- Load saved sessions when the History screen mounts and display each session's local start time, end time, and duration, with a retry alert if loading fails.
+- Skip saving sleep sessions that round to zero minutes.
+- Show an empty-state message when there are no saved sleep records.
+- Reload saved sessions each time the History screen gains focus and display local start times, end times, and durations in labeled columns, with a retry alert if loading fails.
 - Append completed sleep records to existing AsyncStorage history and log session details to the console.
 - Remove saved records and clear the displayed history with **Clean History**, with a retry alert if deletion fails.
 - Offer retry alerts for failed saves and retain the pending record's original timestamps.
@@ -84,7 +86,6 @@ For new Expo dependencies, use `npx expo install <package>` to resolve SDK-compa
 ## Current limitations
 
 - Active sessions exist only in component state and are not restored after app restarts or screen remounts.
-- History loads once when its screen mounts; refreshing it on each tab visit is not implemented.
 - The simulated save failures used for retry testing are disabled.
 - Statistics, reminders, and account synchronization are not implemented.
 - Parts of the shared UI still come from the Expo starter template.

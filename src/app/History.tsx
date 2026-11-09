@@ -1,7 +1,8 @@
 import type { SleepRecord } from "@/types/sleep";
 import { loadSleepRecords } from "@/utils/sleepStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import { Alert, Pressable, Text, View } from "react-native";
 
 export default function HistoryScreen() {
@@ -10,7 +11,7 @@ export default function HistoryScreen() {
     const FAIL_CLEAR_MSG = "Fail to clean history!"
 
     const [sleepRecords, setSleepRecords] = useState<SleepRecord[]>([]);
-    useEffect(() => {
+    useFocusEffect(useCallback(() => {
         async function loadHistory(): Promise<void> {
             try{
                 setSleepRecords(await loadSleepRecords());
@@ -26,7 +27,7 @@ export default function HistoryScreen() {
             }
         }
         void loadHistory();
-    }, []);
+    }, []));
 
     async function clearHistory(): Promise<void> {
         try {
@@ -45,53 +46,83 @@ export default function HistoryScreen() {
     }
 
     return (
-        <View style={{
+        <View style = {{
             flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "#13223a",
+            backgroundColor: "#13223a"
         }}>
             <Text style = {{
-                fontSize: 18,
                 color: "white",
-                padding: 10
+                fontSize: 32,
+                fontWeight: "bold",
+                textAlign: "center",
+                marginTop: 70,
             }}>History</Text>
-            {
-                sleepRecords.map(record =>
-                    <View style = {{
+
+            <View style={{ width: "85%",
+                alignSelf: "center",
+                padding: 5
+            }}>
+                <View style={{ flexDirection: "row", paddingVertical: 10 }}>
+                    {["Start", "End", "Duration"].map(title => (
+                    <Text
+                        key={title}
+                        style={{
+                        flex: 1,
+                        color: "white",
+                        textAlign: "center",
+                        fontWeight: "bold",
+                        }}
+                    >
+                        {title}
+                    </Text>
+                    ))}
+                </View>
+
+                {sleepRecords.map(record => (
+                    <View
+                    key={record.startTime.getTime()}
+                    style={{
                         flexDirection: "row",
-                        width: "85%"
-                    }}>
-                        <Text key={record.startTime.getTime()}
-                            style={{
-                                color: "white",
-                                flex: 1
-                            }}>
-                            {record.startTime.toLocaleTimeString()}
-                        </Text>
-                        <Text key={record.startTime.getTime()}
-                            style={{
-                                color: "white",
-                                flex: 1
-                            }}>
-                            {record.endTime.toLocaleTimeString()}
-                        </Text>
-                        <Text key={record.startTime.getTime()}
-                            style={{
-                                color: "white",
-                                flex: 1
-                            }}>
-                            {record.duration}
-                        </Text>
+                        paddingVertical: 10,
+                        borderTopWidth: 1,
+                        borderTopColor: "#40516b",
+                    }}
+                    >
+                    <Text style={{ flex: 1, color: "white", textAlign: "center" }}>
+                        {record.startTime.toLocaleTimeString()}
+                    </Text>
+                    <Text style={{ flex: 1, color: "white", textAlign: "center" }}>
+                        {record.endTime.toLocaleTimeString()}
+                    </Text>
+                    <Text style={{ flex: 1, color: "white", textAlign: "center" }}>
+                        {record.duration}
+                    </Text>
                     </View>
-                )
-            }
-            <Pressable onPress={clearHistory}> 
+                ))}
+
+                {sleepRecords.length === 0 && (
+                    <Text
+                    style={{
+                        flex: 1,
+                        color: "#aab8cc",
+                        textAlign: "center",
+                        paddingVertical: 20,
+                    }}
+                    >
+                    No sleep records yet
+                    </Text>
+                )}
+            </View>
+            <Pressable onPress={clearHistory}
+            style = {{
+                alignSelf: "center",
+                position: "absolute",
+                bottom: 100
+            }}> 
                 <Text style={{
                     color: "white",
                     fontSize: 18,
                     backgroundColor: "orange",
-                    margin: 15,
                     padding: 10,
                     borderRadius: 10,
                 }}>
