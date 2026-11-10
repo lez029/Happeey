@@ -7,6 +7,8 @@ import { Alert, Pressable, Text, View } from "react-native";
 // let testAttempts = 0;
 
 export default function Homescreen() {
+    // Constants Declaration
+    // String Constants
     const CLICK_WAKE_MSG = "Wake Up clicked!";
     const CLICK_SLEEP_MSG = "Start Sleep clicked!";
     const NULL_START_MSG = "StartTime must not be Null!";
@@ -14,6 +16,7 @@ export default function Homescreen() {
         "Fail to save the record. \nPlease check your connection.";
     const TOO_SHORT_DURATION = "0 h 0 min";
 
+    // State Constants
     const [isSleeping, setIsSleeping] = useState<boolean>(false);
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [sleepDuration, setSleepDuration] = useState<string | null>(null);
@@ -25,6 +28,8 @@ export default function Homescreen() {
      * Starts a sleep session if isSleeping is false.
      * Otherwise, saves the pending record or creates and saves
      * a new record using the current time as the end time.
+     * 
+     * @return  Promise<voide> nothing
      */
     async function handlePress(): Promise<void> {
         console.log(isSleeping ? CLICK_WAKE_MSG : CLICK_SLEEP_MSG);
@@ -62,7 +67,13 @@ export default function Homescreen() {
 
 
     /**
-     * Save the sleep record to json and clear all variables
+     * Save the sleep record to json and clear assigned value of all State 
+     * variables. If errors are caught, record it to console and pass
+     * the current record to pendingRecord for future tries. Alert the user
+     * the failure and allow he to retry saving. 
+     * 
+     * @param record SleepRecord the sleepRecord the user wants to save
+     * @return Promise<void> nothing
      */
     async function saveRecord(record: SleepRecord): Promise<void> {
         // testAttempts++;
@@ -74,7 +85,7 @@ export default function Homescreen() {
                 }
             */
 
-            await saveSleepRecords(record);
+            await storeSleepRecord(record);
 
             setSleepRecords(prev => [...prev, record]);
             setStartTime(null);
@@ -91,6 +102,7 @@ export default function Homescreen() {
         catch (error) {
             console.error(error);
             setPendingRecord(prev => prev == null ? record : prev);
+            // Alert to users and allow them retry
             Alert.alert(
                 "Save Failed!",
                 SAVE_FAILURE_MSG,
@@ -101,7 +113,11 @@ export default function Homescreen() {
 
 
 
-    async function saveSleepRecords(record: SleepRecord): Promise<void> {
+    /**
+     * Store the new sleepRecord as JSON objects to the existed sleepRecords 
+     * list.
+     */
+    async function storeSleepRecord(record: SleepRecord): Promise<void> {
         const json = await AsyncStorage.getItem("sleepRecords");
         const oldRecords: StoredSleepRecord[] = 
             json == null ? [] : JSON.parse(json);

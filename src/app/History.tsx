@@ -52,17 +52,21 @@ export default function HistoryScreen() {
         }}>
             <Text style = {{
                 color: "white",
-                fontSize: 32,
+                fontSize: 28,
                 fontWeight: "bold",
                 textAlign: "center",
-                marginTop: 70,
+                marginTop: 85,
+                marginBottom: 15
             }}>History</Text>
 
             <View style={{ width: "85%",
                 alignSelf: "center",
                 padding: 5
             }}>
-                <View style={{ flexDirection: "row", paddingVertical: 10 }}>
+                <View style={{ flexDirection: "row", 
+                    paddingBottom: 10,
+                    borderBottomWidth: 1,
+                    borderBottomColor: "#40516b",}}>
                     {["Start", "End", "Duration"].map(title => (
                     <Text
                         key={title}
@@ -71,6 +75,7 @@ export default function HistoryScreen() {
                         color: "white",
                         textAlign: "center",
                         fontWeight: "bold",
+                        fontSize: 16
                         }}
                     >
                         {title}
@@ -84,8 +89,6 @@ export default function HistoryScreen() {
                     style={{
                         flexDirection: "row",
                         paddingVertical: 10,
-                        borderTopWidth: 1,
-                        borderTopColor: "#40516b",
                     }}
                     >
                     <Text style={{ flex: 1, color: "white", textAlign: "center" }}>
