@@ -7,7 +7,7 @@ Happeey is an early-stage mobile app for recording sleep sessions. The current i
 ## Current features
 
 - Start a sleep session and record its start time.
-- Switch the home screen between welcome and recording states.
+- Set the home heading to welcome or recording based on whether a sleep session is active.
 - End a session with **Wake Up**, calculate its duration, and reset the start time.
 - Display the latest formatted duration on the home screen.
 - Skip saving sleep sessions that round to zero minutes.

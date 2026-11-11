@@ -6,6 +6,21 @@ import { Alert, Pressable, Text, View } from "react-native";
 
 // let testAttempts = 0;
 
+/**
+ * Renders the home screen of the Happeey sleep tracker.
+ *
+ * Manages sleep sessions, including starting and ending
+ * sessions, calculating sleep duration, and persisting
+ * sleep records using AsyncStorage.
+ *
+ * Maintains the current sleep state and provides retry
+ * functionality when saving a record fails.
+ *
+ * Sleep sessions shorter than one minute (based on the
+ * formatted duration) are discarded without being saved.
+ *
+ * @returns The home screen UI.
+ */
 export default function Homescreen() {
     // Constants Declaration
     // String Constants
@@ -45,6 +60,8 @@ export default function Homescreen() {
             let record: SleepRecord;
             if (startTime != null) {
                 if (pendingRecord != null) {
+                    // Reuse the original record to preserve its end time
+                    // and duration when retrying a failed save.
                     record = pendingRecord;
                 } else {
                     const duration = getSleepDuration(startTime, now);
@@ -67,13 +84,17 @@ export default function Homescreen() {
 
 
     /**
-     * Save the sleep record to json and clear assigned value of all State 
-     * variables. If errors are caught, record it to console and pass
-     * the current record to pendingRecord for future tries. Alert the user
-     * the failure and allow he to retry saving. 
-     * 
-     * @param record SleepRecord the sleepRecord the user wants to save
-     * @return Promise<void> nothing
+     * Persists a sleep record and updates the application state.
+     *
+     * State updates occur only after storage succeeds to prevent
+     * the UI from treating an unsaved session as completed.
+     *
+     * If saving fails, the record is preserved for retrying,
+     * and the user is notified through an alert.
+     *
+     * @param record - The sleep record to persist.
+     * @returns A promise that resolves after processing
+     *          the save attempt.
      */
     async function saveRecord(record: SleepRecord): Promise<void> {
         // testAttempts++;
@@ -114,8 +135,15 @@ export default function Homescreen() {
 
 
     /**
-     * Store the new sleepRecord as JSON objects to the existed sleepRecords 
-     * list.
+     * Appends a sleep record to the existing records in
+     * persistent storage.
+     *
+     * If no records exist, initializes an empty array.
+     * Preserves existing records when saving the new one.
+     *
+     * @param record - The sleep record to append.
+     * @returns A promise that resolves when the record is saved.
+     * @throws If reading, parsing, or writing the records fails.
      */
     async function storeSleepRecord(record: SleepRecord): Promise<void> {
         const json = await AsyncStorage.getItem("sleepRecords");
@@ -141,7 +169,7 @@ export default function Homescreen() {
                 fontSize: 32,
                 fontWeight: "bold"
             }}>
-                {startTime == null ? "Welcome to Happeey" : "Recording Sleep..."}
+                {!isSleeping  ? "Welcome to Happeey" : "Recording Sleep..."}
             </Text>
 
             <Text style={{
