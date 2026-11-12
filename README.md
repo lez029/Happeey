@@ -14,7 +14,7 @@ Happeey is an early-stage mobile app for recording sleep sessions. The current i
 - Show an empty-state message when there are no saved sleep records.
 - Reload saved sessions each time the History screen gains focus and display local start times, end times, and durations in labeled columns, with a retry alert if loading fails.
 - Append completed sleep records to existing AsyncStorage history and log session details to the console.
-- Remove saved records and clear the displayed history with **Clean History**, with a retry alert if deletion fails.
+- Confirm deletion with **Clear History**, then remove saved records and clear the displayed list, with a retry alert if deletion fails.
 - Offer retry alerts for failed saves and retain the pending record's original timestamps.
 - Validate dates and minute values, reject negative durations, and format durations with compact labels such as `8 h 30 min`.
 - Use Expo Router for navigation.
@@ -65,7 +65,7 @@ src/
     sleep.ts          # In-memory and stored sleep record types
   utils/
     sleep.ts          # Duration calculation, formatting, and validation
-    sleepStorage.ts   # Load saved records and restore Date values
+    sleepStorage.ts   # Load, append, and clear saved sleep records
 assets/               # Icons, images, and splash assets
 ```
 

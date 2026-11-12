@@ -1,6 +1,5 @@
 import type { SleepRecord } from "@/types/sleep";
-import { loadSleepRecords } from "@/utils/sleepStorage";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { clearHistory, loadSleepRecords } from "@/utils/sleepStorage";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { Alert, Pressable, Text, View } from "react-native";
@@ -15,7 +14,6 @@ export default function HistoryScreen() {
         async function loadHistory(): Promise<void> {
             try{
                 setSleepRecords(await loadSleepRecords());
-
             }
             catch(error) {
                 Alert.alert(
@@ -29,21 +27,30 @@ export default function HistoryScreen() {
         void loadHistory();
     }, []));
 
-    async function clearHistory(): Promise<void> {
+    function pressClearHistory(): void {
+        Alert.alert(
+            "Clear History",
+            "Confirm to clear your history! Irreversible!",
+            [{text: "No"}, {text: "Yes", onPress: handleClearHistory}]
+        )
+    }
+
+    async function handleClearHistory(): Promise<void> {
         try {
-            await AsyncStorage.removeItem("sleepRecords");
-            setSleepRecords([]);
+            await clearHistory();
             console.log(CLEAR_HISTORY_MSG);
+            setSleepRecords([]);
         }
         catch(error) {
             Alert.alert(
                 "Retry",
                 FAIL_CLEAR_MSG,
-                [{ text: "Retry", onPress: clearHistory }]
+                [{ text: "Retry", onPress: handleClearHistory}]
             )
         }
-
     }
+
+
 
     return (
         <View style = {{
@@ -116,7 +123,7 @@ export default function HistoryScreen() {
                     </Text>
                 )}
             </View>
-            <Pressable onPress={clearHistory}
+            <Pressable onPress={pressClearHistory}
             style = {{
                 alignSelf: "center",
                 position: "absolute",
@@ -129,7 +136,7 @@ export default function HistoryScreen() {
                     padding: 10,
                     borderRadius: 10,
                 }}>
-                    Clean History
+                    Clear History
                 </Text>
             </Pressable>
         </View>

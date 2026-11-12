@@ -1,6 +1,6 @@
-import type { SleepRecord, StoredSleepRecord } from "@/types/sleep";
+import type { SleepRecord } from "@/types/sleep";
 import { getSleepDuration } from "@/utils/sleep";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storeSleepRecord } from "@/utils/sleepStorage";
 import { useState } from "react";
 import { Alert, Pressable, Text, View } from "react-native";
 
@@ -130,30 +130,6 @@ export default function Homescreen() {
                 [{ text: "Retry", onPress: () => saveRecord(record) }]);
             return;
         }
-    }
-
-
-
-    /**
-     * Appends a sleep record to the existing records in
-     * persistent storage.
-     *
-     * If no records exist, initializes an empty array.
-     * Preserves existing records when saving the new one.
-     *
-     * @param record - The sleep record to append.
-     * @returns A promise that resolves when the record is saved.
-     * @throws If reading, parsing, or writing the records fails.
-     */
-    async function storeSleepRecord(record: SleepRecord): Promise<void> {
-        const json = await AsyncStorage.getItem("sleepRecords");
-        const oldRecords: StoredSleepRecord[] = 
-            json == null ? [] : JSON.parse(json);
-        const updateRecords = [...oldRecords, record];
-        await AsyncStorage.setItem(
-            "sleepRecords", 
-            JSON.stringify(updateRecords)
-        );
     }
 
     return (
