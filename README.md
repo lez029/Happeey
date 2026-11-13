@@ -6,9 +6,9 @@ Happeey is an early-stage mobile app for recording sleep sessions. The current i
 
 ## Current features
 
-- Start a sleep session and record its start time.
+- Persist a sleep session's start time and restore an active session when the home screen mounts.
 - Set the home heading to welcome or recording based on whether a sleep session is active.
-- End a session with **Wake Up**, calculate its duration, and reset the start time.
+- End a session with **Wake Up**, calculate its duration, and remove the persisted start time. Disable the session button while finishing, with a retry alert if cleanup fails.
 - Display the latest formatted duration on the home screen.
 - Skip saving sleep sessions that round to zero minutes.
 - Show an empty-state message when there are no saved sleep records.
@@ -65,7 +65,7 @@ src/
     sleep.ts          # In-memory and stored sleep record types
   utils/
     sleep.ts          # Duration calculation, formatting, and validation
-    sleepStorage.ts   # Load, append, and clear saved sleep records
+    sleepStorage.ts   # Persist sleep records and active-session start times
 assets/               # Icons, images, and splash assets
 ```
 
@@ -85,7 +85,7 @@ For new Expo dependencies, use `npx expo install <package>` to resolve SDK-compa
 
 ## Current limitations
 
-- Active sessions exist only in component state and are not restored after app restarts or screen remounts.
+- The latest displayed duration and pending save retries remain in component state and are not restored after a restart.
 - The simulated save failures used for retry testing are disabled.
 - Statistics, reminders, and account synchronization are not implemented.
 - Parts of the shared UI still come from the Expo starter template.

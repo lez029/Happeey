@@ -1,7 +1,7 @@
 import type { SleepRecord } from "@/types/sleep";
 import { getSleepDuration } from "@/utils/sleep";
-import { storeSleepRecord } from "@/utils/sleepStorage";
-import { useState } from "react";
+import { clearStartTime, loadStartTime, storeSleepRecord, storeStartTime } from "@/utils/sleepStorage";
+import { useEffect, useState } from "react";
 import { Alert, Pressable, Text, View } from "react-native";
 
 // let testAttempts = 0;
@@ -38,6 +38,18 @@ export default function Homescreen() {
     const [sleepRecords, setSleepRecords] = useState<SleepRecord[]>([]);
     const [pendingRecord, setPendingRecord] =
         useState<SleepRecord | null>(null);
+    const [isFinishing, setIsFinishing] = useState<boolean>(false);
+
+    useEffect(() => {
+        async function reloadStartTime(): Promise<void>{
+            const savedStartTime = await loadStartTime();
+            if (savedStartTime != null) {
+                setStartTime(savedStartTime);
+                setIsSleeping(true);
+            }
+        }
+        void reloadStartTime();
+    }, [])
     
     /**
      * Starts a sleep session if isSleeping is false.
@@ -51,10 +63,20 @@ export default function Homescreen() {
 
         if (!isSleeping) {
             const now = new Date();
-            setStartTime(now);
-            setSleepDuration(null);
-            console.log(`Start Time: ${now}`);
-            setIsSleeping(prev => !prev);
+            try {
+                await storeStartTime(now);
+                setStartTime(now);
+                setSleepDuration(null);
+                console.log(`Start Time: ${now}`);
+                setIsSleeping(true);
+            }
+            catch(error) {
+                console.error(error);
+                Alert.alert(
+                    "Start Failed",
+                    "Fail to start recording!"
+                )
+            }
         } else {
             const now = new Date();
             let record: SleepRecord;
@@ -66,15 +88,15 @@ export default function Homescreen() {
                 } else {
                     const duration = getSleepDuration(startTime, now);
                     if (duration == TOO_SHORT_DURATION) {
-                        setIsSleeping(false);
-                        setPendingRecord(null);
+                        await finishSleepSession();
                         return;
                     }
                     record = {
                         startTime: startTime, endTime: now, duration: duration
                     }
                 }
-                saveRecord(record);
+                await saveRecord(record);
+
             } else {
                 throw new RangeError(NULL_START_MSG);
             }
@@ -109,7 +131,7 @@ export default function Homescreen() {
             await storeSleepRecord(record);
 
             setSleepRecords(prev => [...prev, record]);
-            setStartTime(null);
+            
 
             //Set the time of the sleep session
             setSleepDuration(record.duration);
@@ -117,8 +139,7 @@ export default function Homescreen() {
             console.log(`Sleep Duration: ${record.duration}`);
             console.log(`End Time: ${record.endTime}`);
 
-            setIsSleeping(false);
-            setPendingRecord(null);
+            await finishSleepSession();
         }
         catch (error) {
             console.error(error);
@@ -129,6 +150,26 @@ export default function Homescreen() {
                 SAVE_FAILURE_MSG,
                 [{ text: "Retry", onPress: () => saveRecord(record) }]);
             return;
+        }
+    }
+
+    async function finishSleepSession(): Promise<void> {
+        try{
+            setIsFinishing(true);
+            await clearStartTime();
+            setStartTime(null);
+            setIsSleeping(false);
+            setPendingRecord(null);
+            setIsFinishing(false);
+        }
+        catch(error) {
+            console.error(error);
+
+            Alert.alert(
+                "Retry",
+                "Fail to finish the sleep session!",
+                [{text: "Retry", onPress: finishSleepSession}]
+            );
         }
     }
 
@@ -155,7 +196,9 @@ export default function Homescreen() {
                 Your Personal Sleep Tracker
             </Text>
 
-            <Pressable onPress={handlePress}>
+            <Pressable 
+            onPress={handlePress} 
+            disabled={isFinishing}>
                 <Text style={{
                     color: "white",
                     fontSize: 18,

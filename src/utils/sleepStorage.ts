@@ -17,7 +17,6 @@ export async function loadSleepRecords(): Promise<SleepRecord[]> {
         return records;
     }
     catch (error) {
-        console.error(error);
         throw error;
     }
 }
@@ -27,7 +26,6 @@ export async function clearHistory(): Promise<void> {
         await AsyncStorage.removeItem("sleepRecords");
     }
     catch(error) {
-        console.error(error);
         throw error;
     }
 }
@@ -54,6 +52,24 @@ export async function storeSleepRecord(record: SleepRecord): Promise<void> {
         "sleepRecords", 
         JSON.stringify(updateRecords)
     );
+}
+
+export async function storeStartTime(startTime: Date): Promise<void> {
+    await AsyncStorage.setItem(
+        "startTime",
+        JSON.stringify(startTime)
+    )
+}
+
+export async function loadStartTime(): Promise<Date | null> {
+    const json = await AsyncStorage.getItem("startTime");
+    if (json == null) return null;
+    const parsed: Date = JSON.parse(json);
+    return new Date(parsed);
+}
+
+export async function clearStartTime(): Promise<void> {
+    await AsyncStorage.removeItem("startTime");
 }
 
 

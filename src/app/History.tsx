@@ -16,6 +16,7 @@ export default function HistoryScreen() {
                 setSleepRecords(await loadSleepRecords());
             }
             catch(error) {
+                console.error(error);
                 Alert.alert(
                     READ_HISTORY_FAILURE_MSG,
                     //READ_HISTORY_FAILURE_MSG,
@@ -42,6 +43,7 @@ export default function HistoryScreen() {
             setSleepRecords([]);
         }
         catch(error) {
+            console.error(error);
             Alert.alert(
                 "Retry",
                 FAIL_CLEAR_MSG,

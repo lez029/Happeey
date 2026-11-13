@@ -1,4 +1,4 @@
-
+//Constant List
 const RATIO_HOUR_MIN = 60;
 const RATIO_MIN_SEC = 60;
 const RATIO_SEC_MILLSEC = 1000;
@@ -7,14 +7,26 @@ const INVALID_DATE_MSG = "Dates must be valid!";
 const END_EARLIER_MSG = "EndTime is earlier than StartTime!";
 
 
-export function minutesToHour(minutes: number): number{
-    minutes = normalizeSleepMinutes(minutes);
 
+/**
+ * Converts a duration from minutes to hours with decimals.
+ * 
+ * Validates the duration in minutes before convertions.
+ * 
+ * @param minutes the duration in minutes
+ * @return the duration in hours with decimals
+ * 
+ */
+export function minutesToHour(minutes: number): number{
+    validateSleepMinutes(minutes);
     return minutes / RATIO_HOUR_MIN;
 }
 
 
 
+/**
+ * Format the
+ */
 export function formatSleepDuration(minutes: number): string{
     minutes = normalizeSleepMinutes(minutes);
 
